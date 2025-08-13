@@ -1,13 +1,15 @@
-import { useState } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoffee } from '@fortawesome/free-solid-svg-icons'
+import { useState } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import reactLogo from './assets/react.svg';
+import viteLogo from '/vite.svg';
+import './App.css';
+import { Compare } from './components/Compare';
+import { Merge } from './components/Merge';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <>
@@ -18,7 +20,6 @@ function App() {
         <a href="https://react.dev" target="_blank">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
-        <FontAwesomeIcon icon={faCoffee} />
       </div>
       <h1 className="text-red-800">Vite + React</h1>
       <div className="card">
@@ -32,8 +33,18 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+
+      <div>
+        <FontAwesomeIcon icon={faArrowRightArrowLeft} /> Switch files
+        <textarea></textarea>
+        <textarea></textarea>
+      </div>
+
+      <Compare />
+
+      <Merge />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
