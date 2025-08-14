@@ -5,6 +5,9 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 export function Compare() {
+  // REQ: Keep the comments and empty lines as they are. Assume that they should be keep above the next
+  // variable (except for comments that are at the end of the file, that should remain there).
+
   return (
     <div>
       <h2>Compare</h2>
