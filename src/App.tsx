@@ -1,27 +1,25 @@
 import { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
 import { Compare } from './components/Compare';
 import { Merge } from './components/Merge';
+import { ThemeSwitcher } from './components/ThemeSwitcher';
 
 function App() {
   const [count, setCount] = useState(0);
 
+  // REQ: Keep the comments and empty lines as they are. Assume that they should be keep above the next
+  // variable (except for comments that are at the end of the file, that should remain there).
+
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1 className="text-red-800">Vite + React</h1>
+      <h1 className="text-4xl md:text-5xl font-bold text-center drop-shadow-lg mb-6">
+        Env Diff Tool
+      </h1>
+
+      <ThemeSwitcher className="absolute top-4 right-4" />
+
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -30,15 +28,21 @@ function App() {
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
 
-      <div>
-        <FontAwesomeIcon icon={faArrowRightArrowLeft} /> Switch files
-        <textarea></textarea>
-        <textarea></textarea>
+      <div className="flex flex-col gap-2 mt-4 md:flex-row px-2">
+        <div className="flex-1">
+          <div>First file</div>
+          <textarea className="border border-gray-500 dark:border-gray-400 rounded-md p-2 min-h-[150px] w-full resize-none"></textarea>
+        </div>
+        <div className="flex-1">
+          <div>Second file</div>
+          <textarea className="border border-gray-500 dark:border-gray-400 rounded-md p-2 min-h-[150px] w-full resize-none"></textarea>
+        </div>
       </div>
+
+      {/*
+        <FontAwesomeIcon icon={faArrowRightArrowLeft} /> Switch files
+      */}
 
       <Compare />
 

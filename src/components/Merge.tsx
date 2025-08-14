@@ -12,6 +12,11 @@
 // - Omit it
 // - Include it
 
+// Comments
+// - Remove all comments
+// - Keep comments only from the first file.
+// - Keep comments from both files (omitting duplicates).
+
 // [ ] Sort merged variables alphabetically
 // [ ] Remove empty variables
 

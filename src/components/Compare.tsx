@@ -8,12 +8,11 @@ export function Compare() {
   return (
     <div>
       <h2>Compare</h2>
-
+      Button: fill with sample data Allow to drag files
       <div>
         <FontAwesomeIcon icon={faTableColumns} /> Side by side view
         <FontAwesomeIcon icon={faTableColumns} rotation={270} /> Stacked view
       </div>
-
       <div>
         <FontAwesomeIcon icon={faArrowDownAZ} /> Sort keys alphabetically
       </div>
