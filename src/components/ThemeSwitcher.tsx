@@ -23,7 +23,9 @@ export function ThemeSwitcher({ className }: { className?: string }) {
 
   return (
     <button
-      className={`border border-gray-600 dark:border-gray-400 rounded transition cursor-pointer inline-flex flex-row ${className}`}
+      type="button"
+      name="theme-switcher"
+      className={`border border-gray-600 dark:border-gray-400 rounded cursor-pointer inline-flex flex-row ${className}`}
       onClick={toggleTheme}
       title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
