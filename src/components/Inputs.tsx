@@ -1,40 +1,59 @@
+import { useDragUtil } from '../hooks/useDragUtil.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons';
+
+type InputsProps = {
+  firstValue: string;
+  secondValue: string;
+  onChangeFirst: (value: string) => void;
+  onChangeSecond: (value: string) => void;
+};
 
 export function Inputs({
   firstValue,
   secondValue,
   onChangeFirst,
   onChangeSecond,
-}: {
-  firstValue: string;
-  secondValue: string;
-  onChangeFirst: (value: string) => void;
-  onChangeSecond: (value: string) => void;
-}) {
+}: InputsProps) {
+  const dragPropsA = useDragUtil((file: File) => readFile(file, onChangeFirst));
+  const dragPropsB = useDragUtil((file: File) =>
+    readFile(file, onChangeSecond),
+  );
+
   return (
     <>
-      <div className="flex flex-col gap-2 md:flex-row px-2">
+      <div className="flex flex-col gap-2 md:flex-row">
         <div className="flex-1">
           <div className="font-bold text-indigo-800 dark:text-indigo-200">
             First file
           </div>
           <textarea
             name="first-file"
-            className="border border-gray-500 bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none"
+            className={`border border-gray-500 bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none transition-colors
+              ${dragPropsA.draggingOver ? 'ring-2 border-indigo-300 dark:border-indigo-600 ring-indigo-400 dark:ring-indigo-700' : dragPropsA.isDragging ? 'ring-2 border-sky-300 dark:border-sky-600 ring-sky-400 dark:ring-sky-700' : 'border-gray-500 dark:border-gray-400'}
+            `}
             value={firstValue}
-            onChange={(e) => onChangeFirst(e.target.value)}
+            onChange={(evt) => onChangeFirst(evt.target.value)}
+            onDragOver={dragPropsA.onDragOver}
+            onDragLeave={dragPropsA.onDragLeave}
+            onDrop={dragPropsA.onDrop}
           ></textarea>
         </div>
+
         <div className="flex-1">
           <div className="font-bold text-indigo-800 dark:text-indigo-200">
             Second file
           </div>
           <textarea
             name="second-file"
-            className="border border-gray-500 bg-white dark:bg-black dark:border-gray-400 rounded-md p-2 min-h-[200px] w-full resize-none"
+            className={`border bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none transition-colors
+              ${dragPropsB.draggingOver ? 'ring-2 border-indigo-300 dark:border-indigo-600 ring-indigo-400 dark:ring-indigo-700' : dragPropsB.isDragging ? 'ring-2 border-sky-300 dark:border-sky-600 ring-sky-400 dark:ring-sky-700' : 'border-gray-500 dark:border-gray-400'}
+            `}
             value={secondValue}
-            onChange={(e) => onChangeSecond(e.target.value)}
+            onChange={(evt) => onChangeSecond(evt.target.value)}
+            onDragOver={dragPropsB.onDragOver}
+            onDragLeave={dragPropsB.onDragLeave}
+            onDrop={dragPropsB.onDrop}
           ></textarea>
         </div>
       </div>
@@ -55,4 +74,11 @@ export function Inputs({
       </div>
     </>
   );
+}
+
+// Helper to read file as text
+function readFile(file: File, callback: (text: string) => void) {
+  const reader = new FileReader();
+  reader.onload = (evt) => callback(evt.target?.result as string);
+  reader.readAsText(file);
 }
