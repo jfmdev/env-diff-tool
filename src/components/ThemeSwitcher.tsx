@@ -30,10 +30,10 @@ export function ThemeSwitcher({ className }: { className?: string }) {
       title={`Switch to ${isDark ? 'light' : 'dark'} theme`}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} theme`}
     >
-      <div className="rounded-l p-1 transition bg-amber-500 text-black dark:bg-gray-800 dark:text-gray-400">
+      <div className="rounded-l p-1 transition-colors bg-amber-500 text-black dark:bg-gray-800 dark:text-gray-400">
         <FontAwesomeIcon icon={faSun} />
       </div>
-      <div className="rounded-r p-1 transition bg-gray-100 text-gray-500 dark:bg-cyan-800 dark:text-white">
+      <div className="rounded-r p-1 transition-colors bg-gray-100 text-gray-500 dark:bg-cyan-800 dark:text-white">
         <FontAwesomeIcon icon={faMoon} />
       </div>
     </button>

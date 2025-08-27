@@ -9,6 +9,9 @@ type InputsProps = {
   onChangeSecond: (value: string) => void;
 };
 
+// TODO: Save in local storage the last entered values.
+// TODO: Add a 'Load sample data' button.
+// TODO: Add a 'Clear all' button.
 export function Inputs({
   firstValue,
   secondValue,
@@ -29,7 +32,7 @@ export function Inputs({
           </div>
           <textarea
             name="first-file"
-            className={`border border-gray-500 bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none transition-colors
+            className={`font-mono border border-gray-500 bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none
               ${dragPropsA.draggingOver ? 'ring-2 border-indigo-300 dark:border-indigo-600 ring-indigo-400 dark:ring-indigo-700' : dragPropsA.isDragging ? 'ring-2 border-sky-300 dark:border-sky-600 ring-sky-400 dark:ring-sky-700' : 'border-gray-500 dark:border-gray-400'}
             `}
             value={firstValue}
@@ -46,7 +49,7 @@ export function Inputs({
           </div>
           <textarea
             name="second-file"
-            className={`border bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none transition-colors
+            className={`font-mono border bg-white dark:bg-black rounded-md p-2 min-h-[200px] w-full resize-none
               ${dragPropsB.draggingOver ? 'ring-2 border-indigo-300 dark:border-indigo-600 ring-indigo-400 dark:ring-indigo-700' : dragPropsB.isDragging ? 'ring-2 border-sky-300 dark:border-sky-600 ring-sky-400 dark:ring-sky-700' : 'border-gray-500 dark:border-gray-400'}
             `}
             value={secondValue}
@@ -62,7 +65,7 @@ export function Inputs({
         <button
           type="button"
           name="swap-files"
-          className={`border rounded-md p-1 cursor-pointer transition ${firstValue === secondValue ? 'border-gray-800 dark:border-gray-200 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400' : 'border-sky-800 dark:border-sky-200 bg-sky-200 dark:bg-sky-800  dark:text-white'}`}
+          className={`border rounded-md p-1 cursor-pointer ${firstValue === secondValue ? 'border-gray-800 dark:border-gray-200 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400' : 'border-sky-800 dark:border-sky-200 bg-sky-200 dark:bg-sky-800  dark:text-white'}`}
           onClick={() => {
             onChangeFirst(secondValue);
             onChangeSecond(firstValue);

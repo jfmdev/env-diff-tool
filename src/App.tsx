@@ -25,10 +25,12 @@ function App() {
       />
 
       <div className="mt-3">
-        <Compare />
+        <Compare firstValue={first} secondValue={second} />
       </div>
 
-      <Merge />
+      <div className="mt-3">
+        <Merge />
+      </div>
     </div>
   );
 }
