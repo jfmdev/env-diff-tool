@@ -9,7 +9,6 @@ type InputsProps = {
   onChangeSecond: (value: string) => void;
 };
 
-// TODO: Save in local storage the last entered values.
 // TODO: Add a 'Load sample data' button.
 // TODO: Add a 'Clear all' button.
 export function Inputs({
