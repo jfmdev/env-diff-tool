@@ -7,7 +7,7 @@ interface EnvVariable {
   comments: string;
 }
 
-interface EnvVariableDiff {
+export interface EnvVariableDiff {
   key: string;
   oldValue: string | null;
   newValue: string | null;

@@ -11,8 +11,12 @@ const LSKeys = {
 };
 
 function App() {
-  const [first, setFirst] = useState(() => localStorage.getItem(LSKeys.FIRST) || '');
-  const [second, setSecond] = useState(() => localStorage.getItem(LSKeys.SECOND) || '');
+  const [first, setFirst] = useState(
+    () => localStorage.getItem(LSKeys.FIRST) || '',
+  );
+  const [second, setSecond] = useState(
+    () => localStorage.getItem(LSKeys.SECOND) || '',
+  );
 
   useEffect(() => {
     localStorage.setItem(LSKeys.FIRST, first);

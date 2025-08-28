@@ -5,6 +5,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useDeferredValue, useMemo, useState } from 'react';
 
+import DiffItem from './DiffItem';
 import { diffEnvFiles } from '../utils/envUtils';
 
 type CompareProps = {
@@ -75,22 +76,11 @@ export function Compare({ firstValue, secondValue }: CompareProps) {
 
       <div className="font-mono border border-gray-500 bg-white dark:bg-black rounded-md py-2 mt-4">
         {diffValue.map((diffItem, index) => (
-          <div key={diffItem.key} className={index > 0 ? 'mt-1' : ''}>
-            {diffItem.oldValue && diffItem.oldValue !== diffItem.newValue && (
-              <div
-                className={`px-2 ${diffItem.newValue ? 'bg-sky-200 dark:bg-sky-900 line-through text-slate-600 dark:text-slate-400' : 'bg-red-200 dark:bg-red-900 line-through text-slate-700 dark:text-slate-300'}`}
-              >
-                {diffItem.key}={diffItem.oldValue}
-              </div>
-            )}
-            {diffItem.newValue && (
-              <div
-                className={`px-2 ${!diffItem.oldValue ? 'bg-green-200 dark:bg-green-900' : diffItem.oldValue !== diffItem.newValue ? 'bg-sky-200 dark:bg-sky-900' : ''}`}
-              >
-                {diffItem.key}={diffItem.newValue}
-              </div>
-            )}
-          </div>
+          <DiffItem
+            key={diffItem.key}
+            item={diffItem}
+            className={index > 0 ? 'mt-1' : ''}
+          />
         ))}
       </div>
     </>
