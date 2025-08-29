@@ -1,17 +1,36 @@
 import { diffLines, type ChangeObject } from 'diff';
 
+function arraysEqual(arrayA: string[], arrayB: string[]): boolean {
+  return (
+    arrayA.length === arrayB.length &&
+    arrayA.every((item, index) => item === arrayB[index])
+  );
+}
+
 // CAVEAT: We assume that all comments are placed above their respective variables.
 interface EnvVariable {
   key: string;
   value: string;
-  comments: string;
+  comments: string[];
 }
 
 export interface EnvVariableDiff {
   key: string;
   oldValue: string | null;
   newValue: string | null;
-  comments: string | ChangeObject<string>[];
+  comments: string[] | ChangeObject<string>[];
+}
+
+type DiffType = 'Changed' | 'Deleted' | 'Inserted' | 'Unchanged';
+
+export function getDiffType(item: EnvVariableDiff): DiffType {
+  return !item.oldValue && item.newValue
+    ? 'Inserted'
+    : item.oldValue && !item.newValue
+      ? 'Deleted'
+      : item.oldValue !== item.newValue
+        ? 'Changed'
+        : 'Unchanged';
 }
 
 export function diffEnvFiles(
@@ -30,9 +49,10 @@ export function diffEnvFiles(
       key: oldVar.key,
       oldValue: oldVar.value,
       newValue: newVar?.value ?? null,
-      comments: newVar
-        ? diffLines(newVar.comments, oldVar.comments)
-        : oldVar.comments,
+      comments:
+        newVar && !arraysEqual(newVar.comments, oldVar.comments)
+          ? diffLines(newVar.comments.join('\n'), oldVar.comments.join('\n'))
+          : oldVar.comments,
     });
   }
 
@@ -61,18 +81,12 @@ export function diffEnvFiles(
 export function parseEnvFile(envContent: string): EnvVariable[] {
   const variables: EnvVariable[] = [];
 
-  let comments: string = '';
+  let comments: string[] = [];
   const trimmedLines = envContent.split('\n').map((line) => line.trim());
   for (const line of trimmedLines) {
-    // Handle empty lines.
-    if (line.length === 0) {
-      comments += '\n';
-      continue;
-    }
-
-    // Handle comment lines.
-    if (line.startsWith('#')) {
-      comments += line.slice(1).trim() + '\n';
+    // Handle empty and comment lines.
+    if (line.length === 0 || line.startsWith('#')) {
+      comments.push(line);
       continue;
     }
 
@@ -80,7 +94,7 @@ export function parseEnvFile(envContent: string): EnvVariable[] {
     const [key, value] = line.split('=').map((item) => item.trim());
     if (key) {
       variables.push({ key, value, comments });
-      comments = '';
+      comments = [];
     }
   }
 
