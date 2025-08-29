@@ -13,9 +13,7 @@ type CompareProps = {
   secondValue: string;
 };
 
-// TODO: Display comments.
 // TODO: Implement Sort button.
-// TODO: Implement Side-by-side button.
 export function Compare({ firstValue, secondValue }: CompareProps) {
   const [sideBySide, setSideBySide] = useState(true);
   const [sort, setSort] = useState(false);
@@ -80,6 +78,7 @@ export function Compare({ firstValue, secondValue }: CompareProps) {
             key={diffItem.key}
             item={diffItem}
             className={index > 0 ? 'mt-1' : ''}
+            sideBySide={sideBySide}
           />
         ))}
       </div>
