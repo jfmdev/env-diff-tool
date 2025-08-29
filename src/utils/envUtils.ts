@@ -57,21 +57,23 @@ export function diffEnvFiles(
   }
 
   // Check variables from the new file that aren't on the old file.
-  let lastOldKey: string | null = null;
+  let lastOldKeyIndex = -1;
   for (const newVar of newVariables) {
     const oldVar = oldVariables.find((oldVar) => oldVar.key === newVar.key);
     if (!oldVar) {
-      const lastOldKeyIndex = lastOldKey
-        ? diffs.findIndex((diffItem) => diffItem.key === lastOldKey)
-        : -1;
       diffs.splice(lastOldKeyIndex + 1, 0, {
         key: newVar.key,
         newValue: newVar.value,
         oldValue: '',
         comments: newVar.comments,
       });
+
+      // Increase the index to avoid placing future new variables before this one.
+      lastOldKeyIndex += 1;
     } else {
-      lastOldKey = oldVar.key;
+      lastOldKeyIndex = diffs.findIndex(
+        (diffItem) => diffItem.key === oldVar.key,
+      );
     }
   }
 
