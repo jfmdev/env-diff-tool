@@ -27,7 +27,7 @@ export interface CommentDiff {
   removed: boolean;
 }
 
-type DiffType = 'Changed' | 'Deleted' | 'Inserted' | 'Unchanged';
+type DiffType = 'Changed' | 'Removed' | 'Added' | 'Unchanged';
 
 function diffComments(
   oldComments: string[],
@@ -46,9 +46,9 @@ function diffComments(
 
 export function getDiffType(item: EnvVariableDiff): DiffType {
   return !item.oldValue && item.newValue
-    ? 'Inserted'
+    ? 'Added'
     : item.oldValue && !item.newValue
-      ? 'Deleted'
+      ? 'Removed'
       : item.oldValue !== item.newValue
         ? 'Changed'
         : 'Unchanged';

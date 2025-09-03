@@ -4,13 +4,16 @@ import {
   type EnvVariableDiff,
 } from '../utils/envUtils';
 
-const DELETED_STYLE = 'bg-red-200 dark:bg-red-900 line-through';
-const INSERTED_STYLE = 'bg-green-200 dark:bg-green-900';
-const CHANGED_STYLE_NEW = 'bg-sky-200 dark:bg-sky-900';
-const CHANGED_STYLE_OLD = `${CHANGED_STYLE_NEW} line-through text-slate-600 dark:text-slate-400`;
+const REMOVED_STYLE = 'bg-red-200 dark:bg-red-900 line-through';
+const REMOVED_BG_STYLE = 'bg-red-100 dark:bg-red-950';
+const ADDED_STYLE = 'bg-green-200 dark:bg-green-900';
+const ADDED_BG_STYLE = 'bg-green-100 dark:bg-green-950';
+const CHANGED_NEW_STYLE = 'bg-sky-200 dark:bg-sky-900';
+const CHANGED_OLD_STYLE = `${CHANGED_NEW_STYLE} line-through text-slate-600 dark:text-slate-400`;
+const CHANGED_BG_STYLE = 'bg-sky-100 dark:bg-sky-950';
 
-const COMMENT_REMOVED_STYLE = `${DELETED_STYLE} text-red-900 dark:text-red-200 italic`;
-const COMMENT_ADDED_STYLE = `${INSERTED_STYLE} text-green-800 dark:text-green-200 italic`;
+const COMMENT_REMOVED_STYLE = `${REMOVED_STYLE} text-red-900 dark:text-red-200 italic`;
+const COMMENT_ADDED_STYLE = `${ADDED_STYLE} text-green-800 dark:text-green-200 italic`;
 const COMMENT_UNCHANGED_STYLE = 'text-slate-500 dark:text-slate-400 italic';
 
 function DiffComment({
@@ -27,30 +30,54 @@ function DiffComment({
   const added =
     typeof comment !== 'string'
       ? comment.added
-      : comment !== '' && diffType === 'Inserted';
+      : comment !== '' && diffType === 'Added';
   const removed =
     typeof comment !== 'string'
       ? comment.removed
-      : comment !== '' && diffType === 'Deleted';
+      : comment !== '' && diffType === 'Removed';
+
+  const bgClass = removed
+    ? REMOVED_BG_STYLE
+    : added
+      ? ADDED_BG_STYLE
+      : COMMENT_UNCHANGED_STYLE;
 
   return sideBySide ? (
     <div className="flex">
-      <div
-        className={`px-2 w-1/2 ${removed ? COMMENT_REMOVED_STYLE : COMMENT_UNCHANGED_STYLE}`}
-      >
-        {content && !added ? <>{content}</> : <br />}
+      <div className={`w-1/2 ${bgClass}`}>
+        {content && !added ? (
+          <span
+            className={`inline-block px-2 ${removed ? COMMENT_REMOVED_STYLE : ''}`}
+          >
+            {content}
+          </span>
+        ) : (
+          <br />
+        )}
       </div>
-      <div
-        className={`px-2 w-1/2 ${added ? COMMENT_ADDED_STYLE : COMMENT_UNCHANGED_STYLE}`}
-      >
-        {content && !removed ? <>{content}</> : <br />}
+      <div className={`w-1/2 ${bgClass}`}>
+        {content && !removed ? (
+          <span
+            className={`inline-block px-2 ${added ? COMMENT_ADDED_STYLE : ''}`}
+          >
+            {content}
+          </span>
+        ) : (
+          <br />
+        )}
       </div>
     </div>
   ) : (
-    <div
-      className={`px-2 ${added ? COMMENT_ADDED_STYLE : removed ? COMMENT_REMOVED_STYLE : COMMENT_UNCHANGED_STYLE}`}
-    >
-      {content ? <>{content}</> : <br />}
+    <div className={bgClass}>
+      {content ? (
+        <span
+          className={`inline-block px-2 ${added ? COMMENT_ADDED_STYLE : removed ? COMMENT_REMOVED_STYLE : ''}`}
+        >
+          {content}
+        </span>
+      ) : (
+        <br />
+      )}
     </div>
   );
 }
@@ -67,26 +94,34 @@ function DiffVariable({
   }
 
   const diffType = getDiffType(item);
-  const isInserted = diffType === 'Inserted';
-  const isDeleted = diffType === 'Deleted';
-  const isChanged = diffType === 'Changed';
+  const added = diffType === 'Added';
+  const removed = diffType === 'Removed';
+  const changed = diffType === 'Changed';
+
+  const bgClass = removed
+    ? REMOVED_BG_STYLE
+    : added
+      ? ADDED_BG_STYLE
+      : changed
+        ? CHANGED_BG_STYLE
+        : '';
 
   return sideBySide ? (
     <div className="flex">
-      <div className="w-1/2">
+      <div className={`w-1/2 ${bgClass}`}>
         {item.oldValue && (
           <span
-            className={`inline-block px-2 ${isDeleted ? DELETED_STYLE : isChanged ? CHANGED_STYLE_OLD : ''}`}
+            className={`inline-block px-2 ${removed ? REMOVED_STYLE : changed ? CHANGED_OLD_STYLE : ''}`}
           >
             {item.key}={item.oldValue}
           </span>
         )}
         {!item.oldValue && <br />}
       </div>
-      <div className="w-1/2">
+      <div className={`w-1/2 ${bgClass}`}>
         {item.newValue && (
           <span
-            className={`inline-block px-2 ${isInserted ? INSERTED_STYLE : isChanged ? CHANGED_STYLE_NEW : ''}`}
+            className={`inline-block px-2 ${added ? ADDED_STYLE : changed ? CHANGED_NEW_STYLE : ''}`}
           >
             {item.key}={item.newValue}
           </span>
@@ -96,18 +131,22 @@ function DiffVariable({
     </div>
   ) : (
     <>
-      {(isDeleted || isChanged) && (
-        <div
-          className={`px-2 ${isDeleted ? DELETED_STYLE : CHANGED_STYLE_OLD}`}
-        >
-          {item.key}={item.oldValue}
+      {(removed || changed) && (
+        <div className={bgClass}>
+          <span
+            className={`inline-block px-2 ${removed ? REMOVED_STYLE : CHANGED_OLD_STYLE}`}
+          >
+            {item.key}={item.oldValue}
+          </span>
         </div>
       )}
-      {!isDeleted && (
-        <div
-          className={`px-2 ${isInserted ? INSERTED_STYLE : isChanged ? CHANGED_STYLE_NEW : ''}`}
-        >
-          {item.key}={item.newValue}
+      {!removed && (
+        <div className={bgClass}>
+          <span
+            className={`inline-block px-2 ${added ? ADDED_STYLE : changed ? CHANGED_NEW_STYLE : ''}`}
+          >
+            {item.key}={item.newValue}
+          </span>
         </div>
       )}
     </>
