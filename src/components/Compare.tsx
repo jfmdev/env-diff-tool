@@ -73,11 +73,10 @@ export function Compare({ firstValue, secondValue }: CompareProps) {
       </div>
 
       <div className="font-mono border border-gray-500 bg-white dark:bg-black rounded-md py-2 mt-4">
-        {diffValue.map((diffItem, index) => (
+        {diffValue.map((diffItem) => (
           <DiffItem
             key={diffItem.key}
             item={diffItem}
-            className={index > 0 ? 'mt-1' : ''}
             sideBySide={sideBySide}
           />
         ))}

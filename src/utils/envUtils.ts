@@ -1,4 +1,4 @@
-import { diffLines, type ChangeObject } from 'diff';
+import { diffLines } from 'diff';
 
 function arraysEqual(arrayA: string[], arrayB: string[]): boolean {
   return (
@@ -18,10 +18,29 @@ export interface EnvVariableDiff {
   key: string;
   oldValue: string | null;
   newValue: string | null;
-  comments: string[] | ChangeObject<string>[];
+  comments: string[] | CommentDiff[];
+}
+
+export interface CommentDiff {
+  value: string;
+  added: boolean;
+  removed: boolean;
 }
 
 type DiffType = 'Changed' | 'Deleted' | 'Inserted' | 'Unchanged';
+
+function diffComments(
+  oldComments: string[],
+  newComments: string[],
+): CommentDiff[] {
+  return diffLines(newComments.join('\n'), oldComments.join('\n'))?.flatMap(
+    ({ count, value, added, removed }) =>
+      count <= 1
+        ? { value: value.replace('\n', ''), added, removed }
+        : (value.split('\n').map((line) => ({ value: line, added, removed })) ??
+          []),
+  );
+}
 
 export function getDiffType(item: EnvVariableDiff): DiffType {
   return !item.oldValue && item.newValue
@@ -51,7 +70,7 @@ export function diffEnvFiles(
       newValue: newVar?.value ?? null,
       comments:
         newVar && !arraysEqual(newVar.comments, oldVar.comments)
-          ? diffLines(newVar.comments.join('\n'), oldVar.comments.join('\n'))
+          ? diffComments(newVar.comments, oldVar.comments)
           : oldVar.comments,
     });
   }
