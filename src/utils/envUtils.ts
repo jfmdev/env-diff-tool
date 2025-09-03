@@ -37,8 +37,10 @@ function diffComments(
     ({ count, value, added, removed }) =>
       count <= 1
         ? { value: value.replace('\n', ''), added, removed }
-        : (value.split('\n').map((line) => ({ value: line, added, removed })) ??
-          []),
+        : (value
+            .split('\n')
+            .filter((line) => line.trim() !== '')
+            .map((line) => ({ value: line, added, removed })) ?? []),
   );
 }
 

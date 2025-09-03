@@ -9,8 +9,8 @@ const INSERTED_STYLE = 'bg-green-200 dark:bg-green-900';
 const CHANGED_STYLE_NEW = 'bg-sky-200 dark:bg-sky-900';
 const CHANGED_STYLE_OLD = `${CHANGED_STYLE_NEW} line-through text-slate-600 dark:text-slate-400`;
 
-const COMMENT_DELETED_STYLE = `${DELETED_STYLE} text-red-900 dark:text-red-200 italic`;
-const COMMENT_INSERTED_STYLE = `${INSERTED_STYLE} text-green-800 dark:text-green-200 italic`;
+const COMMENT_REMOVED_STYLE = `${DELETED_STYLE} text-red-900 dark:text-red-200 italic`;
+const COMMENT_ADDED_STYLE = `${INSERTED_STYLE} text-green-800 dark:text-green-200 italic`;
 const COMMENT_UNCHANGED_STYLE = 'text-slate-500 dark:text-slate-400 italic';
 
 function DiffComment({
@@ -22,66 +22,35 @@ function DiffComment({
   item: EnvVariableDiff;
   sideBySide: boolean;
 }) {
-  if (comment === '') {
-    return sideBySide ? (
-      <div className="flex">
-        <div className="w-1/2">
-          <br />
-        </div>
-        <div className="w-1/2">
-          <br />
-        </div>
-      </div>
-    ) : (
-      <br />
-    );
-  }
-
-  if (typeof comment === 'string') {
-    const diffType = getDiffType(item);
-    const isInserted = diffType === 'Inserted';
-    const isDeleted = diffType === 'Deleted';
-
-    return sideBySide ? (
-      <div className="flex">
-        <div
-          className={`px-2 w-1/2 ${isDeleted ? COMMENT_DELETED_STYLE : COMMENT_UNCHANGED_STYLE}`}
-        >
-          {!isInserted ? <div>{comment}</div> : <br />}
-        </div>
-        <div
-          className={`px-2 w-1/2 ${isInserted ? COMMENT_INSERTED_STYLE : COMMENT_UNCHANGED_STYLE}`}
-        >
-          {!isDeleted ? <div>{comment}</div> : <br />}
-        </div>
-      </div>
-    ) : (
-      <div
-        className={`px-2 ${isInserted ? COMMENT_INSERTED_STYLE : isDeleted ? COMMENT_DELETED_STYLE : COMMENT_UNCHANGED_STYLE}`}
-      >
-        {comment}
-      </div>
-    );
-  }
+  const diffType = getDiffType(item);
+  const content = typeof comment === 'string' ? comment : comment.value;
+  const added =
+    typeof comment !== 'string'
+      ? comment.added
+      : comment !== '' && diffType === 'Inserted';
+  const removed =
+    typeof comment !== 'string'
+      ? comment.removed
+      : comment !== '' && diffType === 'Deleted';
 
   return sideBySide ? (
     <div className="flex">
       <div
-        className={`px-2 w-1/2 ${comment.removed ? COMMENT_DELETED_STYLE : COMMENT_UNCHANGED_STYLE}`}
+        className={`px-2 w-1/2 ${removed ? COMMENT_REMOVED_STYLE : COMMENT_UNCHANGED_STYLE}`}
       >
-        {!comment.added ? <div>{comment.value}</div> : <br />}
+        {content && !added ? <>{content}</> : <br />}
       </div>
       <div
-        className={`px-2 w-1/2 ${comment.added ? COMMENT_INSERTED_STYLE : COMMENT_UNCHANGED_STYLE}`}
+        className={`px-2 w-1/2 ${added ? COMMENT_ADDED_STYLE : COMMENT_UNCHANGED_STYLE}`}
       >
-        {!comment.removed ? <div>{comment.value}</div> : <br />}
+        {content && !removed ? <>{content}</> : <br />}
       </div>
     </div>
   ) : (
     <div
-      className={`px-2 ${comment.added ? COMMENT_INSERTED_STYLE : comment.removed ? COMMENT_DELETED_STYLE : COMMENT_UNCHANGED_STYLE}`}
+      className={`px-2 ${added ? COMMENT_ADDED_STYLE : removed ? COMMENT_REMOVED_STYLE : COMMENT_UNCHANGED_STYLE}`}
     >
-      {comment.value}
+      {content ? <>{content}</> : <br />}
     </div>
   );
 }
