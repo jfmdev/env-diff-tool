@@ -13,7 +13,6 @@ type CompareProps = {
   secondValue: string;
 };
 
-// TODO: Implement Sort button.
 export function Compare({ firstValue, secondValue }: CompareProps) {
   const [sideBySide, setSideBySide] = useState(true);
   const [sort, setSort] = useState(false);
@@ -22,12 +21,11 @@ export function Compare({ firstValue, secondValue }: CompareProps) {
   const deferredSecondValue = useDeferredValue(secondValue);
 
   const diffValue = useMemo(() => {
-    console.log(
-      'diffValue',
-      diffEnvFiles(deferredFirstValue, deferredSecondValue),
-    );
-    return diffEnvFiles(deferredFirstValue, deferredSecondValue);
-  }, [deferredFirstValue, deferredSecondValue]);
+    const diffData = diffEnvFiles(deferredFirstValue, deferredSecondValue);
+    return sort
+      ? diffData.sort((itemA, itemB) => itemA.key.localeCompare(itemB.key))
+      : diffData;
+  }, [deferredFirstValue, deferredSecondValue, sort]);
 
   return (
     <>
