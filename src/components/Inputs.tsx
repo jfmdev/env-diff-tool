@@ -1,6 +1,13 @@
+import { useState } from 'react';
+
 import { useDragUtil } from '../hooks/useDragUtil.ts';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRightArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowRightArrowLeft,
+  faFileLines,
+  faRotate,
+  faTrashCan,
+} from '@fortawesome/free-solid-svg-icons';
 
 type InputsProps = {
   firstValue: string;
@@ -9,18 +16,47 @@ type InputsProps = {
   onChangeSecond: (value: string) => void;
 };
 
-// TODO: Add a 'Load sample data' button.
-// TODO: Add a 'Clear all' button.
 export function Inputs({
   firstValue,
   secondValue,
   onChangeFirst,
   onChangeSecond,
 }: InputsProps) {
+  const [isLoadingSample, setIsLoadingSample] = useState(false);
   const dragPropsA = useDragUtil((file: File) => readFile(file, onChangeFirst));
   const dragPropsB = useDragUtil((file: File) =>
     readFile(file, onChangeSecond),
   );
+
+  const loadSampleData = async () => {
+    if (isLoadingSample) {
+      return;
+    }
+
+    setIsLoadingSample(true);
+    try {
+      const [firstResponse, secondResponse] = await Promise.all([
+        fetch('/samples/first.env'),
+        fetch('/samples/second.env'),
+      ]);
+
+      if (!firstResponse.ok || !secondResponse.ok) {
+        throw new Error('Failed to load sample data');
+      }
+
+      const [firstText, secondText] = await Promise.all([
+        firstResponse.text(),
+        secondResponse.text(),
+      ]);
+
+      onChangeFirst(firstText);
+      onChangeSecond(secondText);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingSample(false);
+    }
+  };
 
   return (
     <>
@@ -60,19 +96,53 @@ export function Inputs({
         </div>
       </div>
 
-      <div className="flex justify-center mt-1">
-        <button
-          type="button"
-          name="swap-files"
-          className={`border rounded-md p-1 cursor-pointer ${firstValue === secondValue ? 'border-gray-800 dark:border-gray-200 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400' : 'border-sky-800 dark:border-sky-200 bg-sky-200 dark:bg-sky-800  dark:text-white'}`}
-          onClick={() => {
-            onChangeFirst(secondValue);
-            onChangeSecond(firstValue);
-          }}
-          title="Click to swap the content of both files"
-        >
-          <FontAwesomeIcon icon={faArrowRightArrowLeft} /> Swap files
-        </button>
+      <div className="flex justify-between mt-1">
+        <div>
+          <button
+            type="button"
+            name="load-sample"
+            className={`border rounded-md text-sm p-1 cursor-pointer ${isLoadingSample || firstValue || secondValue ? 'border-gray-800 dark:border-gray-200 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400' : 'border-violet-800 dark:border-violet-200 bg-violet-200 dark:bg-violet-800 dark:text-white'}`}
+            onClick={loadSampleData}
+            title="Click to load sample data on both files"
+            aria-busy={isLoadingSample}
+          >
+            <FontAwesomeIcon
+              icon={isLoadingSample ? faRotate : faFileLines}
+              spin={isLoadingSample}
+            />{' '}
+            Load sample data
+          </button>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            name="swap-files"
+            className={`border rounded-md text-sm p-1 cursor-pointer ${firstValue === secondValue ? 'border-gray-800 dark:border-gray-200 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400' : 'border-sky-800 dark:border-sky-200 bg-sky-200 dark:bg-sky-800  dark:text-white'}`}
+            onClick={() => {
+              onChangeFirst(secondValue);
+              onChangeSecond(firstValue);
+            }}
+            title="Click to swap the content of both files"
+          >
+            <FontAwesomeIcon icon={faArrowRightArrowLeft} /> Swap files
+          </button>
+        </div>
+
+        <div>
+          <button
+            type="button"
+            name="swap-files"
+            className={`border rounded-md text-sm p-1 cursor-pointer ${!firstValue && !secondValue ? 'border-gray-800 dark:border-gray-200 bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-400' : 'border-red-800 dark:border-red-200 bg-red-200 dark:bg-red-900  dark:text-white'}`}
+            onClick={() => {
+              onChangeFirst('');
+              onChangeSecond('');
+            }}
+            title="Click to clear the content of both files"
+          >
+            <FontAwesomeIcon icon={faTrashCan} /> Clear all
+          </button>
+        </div>
       </div>
     </>
   );
