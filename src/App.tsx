@@ -41,12 +41,12 @@ function App() {
         onChangeSecond={setSecond}
       />
 
-      <div className="mt-3">
+      <div className="mt-5">
         <Compare firstValue={first} secondValue={second} />
       </div>
 
-      <div className="mt-3">
-        <Merge />
+      <div className="mt-5">
+        <Merge firstValue={first} secondValue={second} />
       </div>
     </div>
   );
