@@ -1,34 +1,14 @@
-// TODO
-// Merge rules:
-
-// Variable has non-empty values in both files → Use the value from:
-// - First file
-// - Second file
-
-// Variable is empty in the first file but not in the second →
-// - Keep it empty
-// - Use the value from the second file
-
-// Variable exists only in the second file →
-// - Omit it
-// - Include it
-
-// Comments
-// - Remove all comments
-// - Keep comments only from the first file.
-// - Keep comments from both files (omitting duplicates).
-
-// [ ] Sort merged variables alphabetically
-// [ ] Remove empty variables
-
 import { useMemo, useState } from 'react';
 import { parseEnvFile } from '../utils/envUtils';
 
+// TODO: Refactor code.
+// TODO: Improve UI.
+
 type MergeSettings = {
   conflictResolution: 'first' | 'second';
-  emptyInFirst: 'keepEmpty' | 'useSecond';
-  onlyInSecond: 'omit' | 'include';
-  comments: 'remove' | 'firstOnly' | 'both';
+  emptyValue: 'keepEmpty' | 'useOther';
+  onlyInOne: 'omit' | 'includeAll' | 'includeFirst' | 'includeSecond';
+  comments: 'remove' | 'firstOnly' | 'secondOnly' | 'both';
   sortAlphabetically: boolean;
   removeEmpty: boolean;
 };
@@ -58,7 +38,7 @@ function mergeEnvFiles(
   for (const firstVar of firstVars) {
     if (!firstVar.key) {
       // Handle trailing comments from first file
-      if (settings.comments !== 'remove') {
+      if (settings.comments === 'firstOnly' || settings.comments === 'both') {
         firstVar.comments.forEach((comment) => {
           if (comment)
             result.push({ content: comment, source: 'first', isComment: true });
@@ -75,6 +55,11 @@ function mergeEnvFiles(
       firstVar.comments.forEach((comment) => {
         if (comment)
           result.push({ content: comment, source: 'first', isComment: true });
+      });
+    } else if (settings.comments === 'secondOnly' && secondVar) {
+      secondVar.comments.forEach((comment) => {
+        if (comment)
+          result.push({ content: comment, source: 'second', isComment: true });
       });
     } else if (settings.comments === 'both' && secondVar) {
       const allComments = new Set([
@@ -120,12 +105,27 @@ function mergeEnvFiles(
         source = settings.conflictResolution === 'first' ? 'first' : 'second';
       } else if (firstEmpty && !secondEmpty) {
         // Empty in first, non-empty in second
-        if (settings.emptyInFirst === 'useSecond') {
+        if (
+          settings.conflictResolution === 'first' &&
+          settings.emptyValue === 'useOther'
+        ) {
           valueToUse = secondVar.value;
           source = 'second';
         } else {
           valueToUse = firstVar.value;
           source = 'first';
+        }
+      } else if (secondEmpty && !firstEmpty) {
+        // Empty in second, non-empty in first
+        if (
+          settings.conflictResolution === 'second' &&
+          settings.emptyValue === 'useOther'
+        ) {
+          valueToUse = firstVar.value;
+          source = 'first';
+        } else {
+          valueToUse = secondVar.value;
+          source = 'second';
         }
       }
     }
@@ -142,13 +142,52 @@ function mergeEnvFiles(
     });
   }
 
+  // Process variables only in first file
+  if (
+    settings.onlyInOne === 'includeAll' ||
+    settings.onlyInOne === 'includeFirst'
+  ) {
+    for (const firstVar of firstVars) {
+      if (!firstVar.key || processedKeys.has(firstVar.key)) continue;
+
+      // Handle comments for first-only variables
+      if (settings.comments === 'firstOnly' || settings.comments === 'both') {
+        firstVar.comments.forEach((comment) => {
+          if (comment)
+            result.unshift({
+              content: comment,
+              source: 'first',
+              isComment: true,
+            });
+        });
+      }
+
+      // Skip if removeEmpty is enabled and value is empty
+      if (
+        settings.removeEmpty &&
+        (!firstVar.value || firstVar.value.trim() === '')
+      ) {
+        continue;
+      }
+
+      result.unshift({
+        content: `${firstVar.key}=${firstVar.value}`,
+        source: 'first',
+        isComment: false,
+      });
+    }
+  }
+
   // Process variables only in second file
-  if (settings.onlyInSecond === 'include') {
+  if (
+    settings.onlyInOne === 'includeAll' ||
+    settings.onlyInOne === 'includeSecond'
+  ) {
     for (const secondVar of secondVars) {
       if (!secondVar.key || processedKeys.has(secondVar.key)) continue;
 
       // Handle comments for second-only variables
-      if (settings.comments === 'both') {
+      if (settings.comments === 'secondOnly' || settings.comments === 'both') {
         secondVar.comments.forEach((comment) => {
           if (comment)
             result.push({
@@ -203,8 +242,8 @@ function mergeEnvFiles(
 export function Merge({ firstValue, secondValue }: MergeProps) {
   const [settings, setSettings] = useState<MergeSettings>({
     conflictResolution: 'second',
-    emptyInFirst: 'useSecond',
-    onlyInSecond: 'include',
+    emptyValue: 'useOther',
+    onlyInOne: 'includeAll',
     comments: 'both',
     sortAlphabetically: false,
     removeEmpty: false,
@@ -223,7 +262,7 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
         {/* Conflict Resolution */}
         <div className="space-y-3">
           <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            Variable has non-empty values in both files → Use the value from:
+            Variable defined in both files:
           </label>
           <div className="space-y-2 ml-4">
             <label className="flex items-center space-x-2 cursor-pointer">
@@ -241,7 +280,7 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                First file
+                Use value from first file
               </span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
@@ -259,95 +298,160 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                Second file
+                Use value from second file
               </span>
             </label>
           </div>
         </div>
 
-        {/* Empty in First */}
+        {/* Empty Value Handling */}
         <div className="space-y-3">
           <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            Variable is empty in the first file but not in the second →
+            {settings.conflictResolution === 'first' && (
+              <span>
+                Variable empty in first file <small>(but not in second)</small>:
+              </span>
+            )}
+            {settings.conflictResolution !== 'first' && (
+              <span>
+                Variable empty in second file <small>(but not in first)</small>:
+              </span>
+            )}
           </label>
           <div className="space-y-2 ml-4">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="radio"
-                name="emptyInFirst"
+                name="emptyValue"
                 value="keepEmpty"
-                checked={settings.emptyInFirst === 'keepEmpty'}
+                checked={settings.emptyValue === 'keepEmpty'}
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    emptyInFirst: e.target.value as 'keepEmpty' | 'useSecond',
+                    emptyValue: e.target.value as 'keepEmpty' | 'useOther',
                   })
                 }
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                Keep it empty
+                Keep empty
               </span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="radio"
-                name="emptyInFirst"
-                value="useSecond"
-                checked={settings.emptyInFirst === 'useSecond'}
+                name="emptyValue"
+                value="useOther"
+                checked={settings.emptyValue === 'useOther'}
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    emptyInFirst: e.target.value as 'keepEmpty' | 'useSecond',
+                    emptyValue: e.target.value as 'keepEmpty' | 'useOther',
                   })
                 }
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                Use the value from the second file
+                {settings.conflictResolution === 'first'
+                  ? 'Use value from second file'
+                  : 'Use value from first file'}
               </span>
             </label>
           </div>
         </div>
 
-        {/* Only in Second */}
+        {/* Only in One */}
         <div className="space-y-3">
           <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            Variable exists only in the second file →
+            Variable defined in only one file:
           </label>
           <div className="space-y-2 ml-4">
             <label className="flex items-center space-x-2 cursor-pointer">
               <input
                 type="radio"
-                name="onlyInSecond"
+                name="onlyInOne"
                 value="omit"
-                checked={settings.onlyInSecond === 'omit'}
+                checked={settings.onlyInOne === 'omit'}
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    onlyInSecond: e.target.value as 'omit' | 'include',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">Omit it</span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="onlyInSecond"
-                value="include"
-                checked={settings.onlyInSecond === 'include'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    onlyInSecond: e.target.value as 'omit' | 'include',
+                    onlyInOne: e.target.value as
+                      | 'omit'
+                      | 'includeAll'
+                      | 'includeFirst'
+                      | 'includeSecond',
                   })
                 }
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                Include it
+                Exclude variable
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="onlyInOne"
+                value="includeAll"
+                checked={settings.onlyInOne === 'includeAll'}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    onlyInOne: e.target.value as
+                      | 'omit'
+                      | 'includeAll'
+                      | 'includeFirst'
+                      | 'includeSecond',
+                  })
+                }
+                className="cursor-pointer"
+              />
+              <span className="text-gray-700 dark:text-gray-300">
+                Include variable
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="onlyInOne"
+                value="includeFirst"
+                checked={settings.onlyInOne === 'includeFirst'}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    onlyInOne: e.target.value as
+                      | 'omit'
+                      | 'includeAll'
+                      | 'includeFirst'
+                      | 'includeSecond',
+                  })
+                }
+                className="cursor-pointer"
+              />
+              <span className="text-gray-700 dark:text-gray-300">
+                Include variable only if defined in first file
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="onlyInOne"
+                value="includeSecond"
+                checked={settings.onlyInOne === 'includeSecond'}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    onlyInOne: e.target.value as
+                      | 'omit'
+                      | 'includeAll'
+                      | 'includeFirst'
+                      | 'includeSecond',
+                  })
+                }
+                className="cursor-pointer"
+              />
+              <span className="text-gray-700 dark:text-gray-300">
+                Include variable only if defined in second file
               </span>
             </label>
           </div>
@@ -368,7 +472,11 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    comments: e.target.value as 'remove' | 'firstOnly' | 'both',
+                    comments: e.target.value as
+                      | 'remove'
+                      | 'firstOnly'
+                      | 'secondOnly'
+                      | 'both',
                   })
                 }
                 className="cursor-pointer"
@@ -386,13 +494,39 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    comments: e.target.value as 'remove' | 'firstOnly' | 'both',
+                    comments: e.target.value as
+                      | 'remove'
+                      | 'firstOnly'
+                      | 'secondOnly'
+                      | 'both',
                   })
                 }
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                Keep comments only from the first file
+                Keep comments from the first file only
+              </span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="comments"
+                value="secondOnly"
+                checked={settings.comments === 'secondOnly'}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    comments: e.target.value as
+                      | 'remove'
+                      | 'firstOnly'
+                      | 'secondOnly'
+                      | 'both',
+                  })
+                }
+                className="cursor-pointer"
+              />
+              <span className="text-gray-700 dark:text-gray-300">
+                Keep comments from second file only
               </span>
             </label>
             <label className="flex items-center space-x-2 cursor-pointer">
@@ -404,13 +538,17 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
                 onChange={(e) =>
                   setSettings({
                     ...settings,
-                    comments: e.target.value as 'remove' | 'firstOnly' | 'both',
+                    comments: e.target.value as
+                      | 'remove'
+                      | 'firstOnly'
+                      | 'secondOnly'
+                      | 'both',
                   })
                 }
                 className="cursor-pointer"
               />
               <span className="text-gray-700 dark:text-gray-300">
-                Keep comments from both files (omitting duplicates)
+                Keep comments from both files (remove duplicates)
               </span>
             </label>
           </div>
@@ -431,7 +569,7 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
               className="cursor-pointer"
             />
             <span className="font-semibold text-gray-900 dark:text-gray-100">
-              Sort merged variables alphabetically
+              Sort variables alphabetically
             </span>
           </label>
           <label className="flex items-center space-x-2 cursor-pointer">
