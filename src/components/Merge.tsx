@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
 import { parseEnvFile } from '../utils/envUtils';
 
-// TODO: Improve UI.
-
 type MergeSettings = {
   conflictResolution: 'first' | 'second';
   emptyValue: 'keepEmpty' | 'useOther';
@@ -259,304 +257,308 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
       <h2 className="text-2xl md:text-3xl drop-shadow-lg text-center">Merge</h2>
 
       <form className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-        {/* Conflict Resolution */}
-        <div className="space-y-3">
-          <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            Variable defined in both files:
-          </label>
-          <div className="space-y-2 ml-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="conflictResolution"
-                value="first"
-                checked={settings.conflictResolution === 'first'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    conflictResolution: e.target.value as 'first' | 'second',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Use value from first file
-              </span>
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Conflict Resolution */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-gray-100">
+              Variable defined in both files:
             </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="conflictResolution"
-                value="second"
-                checked={settings.conflictResolution === 'second'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    conflictResolution: e.target.value as 'first' | 'second',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Use value from second file
-              </span>
-            </label>
+            <div className="space-y-2 ml-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="conflictResolution"
+                  value="first"
+                  checked={settings.conflictResolution === 'first'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      conflictResolution: e.target.value as 'first' | 'second',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Use value from first file
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="conflictResolution"
+                  value="second"
+                  checked={settings.conflictResolution === 'second'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      conflictResolution: e.target.value as 'first' | 'second',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Use value from second file
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
 
-        {/* Empty Value Handling */}
-        <div className="space-y-3">
-          <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            {settings.conflictResolution === 'first' && (
-              <span>
-                Variable empty in first file <small>(but not in second)</small>:
-              </span>
-            )}
-            {settings.conflictResolution !== 'first' && (
-              <span>
-                Variable empty in second file <small>(but not in first)</small>:
-              </span>
-            )}
-          </label>
-          <div className="space-y-2 ml-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="emptyValue"
-                value="keepEmpty"
-                checked={settings.emptyValue === 'keepEmpty'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    emptyValue: e.target.value as 'keepEmpty' | 'useOther',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Keep empty
-              </span>
+          {/* Empty Value Handling */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-gray-100">
+              {settings.conflictResolution === 'first' && (
+                <span>
+                  Variable empty in first file{' '}
+                  <small>(but not in second)</small>:
+                </span>
+              )}
+              {settings.conflictResolution !== 'first' && (
+                <span>
+                  Variable empty in second file{' '}
+                  <small>(but not in first)</small>:
+                </span>
+              )}
             </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="emptyValue"
-                value="useOther"
-                checked={settings.emptyValue === 'useOther'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    emptyValue: e.target.value as 'keepEmpty' | 'useOther',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                {settings.conflictResolution === 'first'
-                  ? 'Use value from second file'
-                  : 'Use value from first file'}
-              </span>
-            </label>
+            <div className="space-y-2 ml-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="emptyValue"
+                  value="keepEmpty"
+                  checked={settings.emptyValue === 'keepEmpty'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      emptyValue: e.target.value as 'keepEmpty' | 'useOther',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Keep empty
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="emptyValue"
+                  value="useOther"
+                  checked={settings.emptyValue === 'useOther'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      emptyValue: e.target.value as 'keepEmpty' | 'useOther',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  {settings.conflictResolution === 'first'
+                    ? 'Use value from second file'
+                    : 'Use value from first file'}
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
 
-        {/* Only in One */}
-        <div className="space-y-3">
-          <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            Variable defined in only one file:
-          </label>
-          <div className="space-y-2 ml-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="onlyInOne"
-                value="omit"
-                checked={settings.onlyInOne === 'omit'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    onlyInOne: e.target.value as
-                      | 'omit'
-                      | 'includeAll'
-                      | 'includeFirst'
-                      | 'includeSecond',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Exclude variable
-              </span>
+          {/* Only in One */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-gray-100">
+              Variable defined in only one file:
             </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="onlyInOne"
-                value="includeAll"
-                checked={settings.onlyInOne === 'includeAll'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    onlyInOne: e.target.value as
-                      | 'omit'
-                      | 'includeAll'
-                      | 'includeFirst'
-                      | 'includeSecond',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Include variable
-              </span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="onlyInOne"
-                value="includeFirst"
-                checked={settings.onlyInOne === 'includeFirst'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    onlyInOne: e.target.value as
-                      | 'omit'
-                      | 'includeAll'
-                      | 'includeFirst'
-                      | 'includeSecond',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Include variable only if defined in first file
-              </span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="onlyInOne"
-                value="includeSecond"
-                checked={settings.onlyInOne === 'includeSecond'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    onlyInOne: e.target.value as
-                      | 'omit'
-                      | 'includeAll'
-                      | 'includeFirst'
-                      | 'includeSecond',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Include variable only if defined in second file
-              </span>
-            </label>
+            <div className="space-y-2 ml-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="onlyInOne"
+                  value="omit"
+                  checked={settings.onlyInOne === 'omit'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      onlyInOne: e.target.value as
+                        | 'omit'
+                        | 'includeAll'
+                        | 'includeFirst'
+                        | 'includeSecond',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Exclude variable
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="onlyInOne"
+                  value="includeAll"
+                  checked={settings.onlyInOne === 'includeAll'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      onlyInOne: e.target.value as
+                        | 'omit'
+                        | 'includeAll'
+                        | 'includeFirst'
+                        | 'includeSecond',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Include variable
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="onlyInOne"
+                  value="includeFirst"
+                  checked={settings.onlyInOne === 'includeFirst'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      onlyInOne: e.target.value as
+                        | 'omit'
+                        | 'includeAll'
+                        | 'includeFirst'
+                        | 'includeSecond',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Include variable only if defined in first file
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="onlyInOne"
+                  value="includeSecond"
+                  checked={settings.onlyInOne === 'includeSecond'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      onlyInOne: e.target.value as
+                        | 'omit'
+                        | 'includeAll'
+                        | 'includeFirst'
+                        | 'includeSecond',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Include variable only if defined in second file
+                </span>
+              </label>
+            </div>
           </div>
-        </div>
 
-        {/* Comments */}
-        <div className="space-y-3">
-          <label className="block font-semibold text-gray-900 dark:text-gray-100">
-            Comments
-          </label>
-          <div className="space-y-2 ml-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="comments"
-                value="remove"
-                checked={settings.comments === 'remove'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    comments: e.target.value as
-                      | 'remove'
-                      | 'firstOnly'
-                      | 'secondOnly'
-                      | 'both',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Remove all comments
-              </span>
+          {/* Comments */}
+          <div>
+            <label className="block font-semibold text-gray-900 dark:text-gray-100">
+              Comments
             </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="comments"
-                value="firstOnly"
-                checked={settings.comments === 'firstOnly'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    comments: e.target.value as
-                      | 'remove'
-                      | 'firstOnly'
-                      | 'secondOnly'
-                      | 'both',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Keep comments from the first file only
-              </span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="comments"
-                value="secondOnly"
-                checked={settings.comments === 'secondOnly'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    comments: e.target.value as
-                      | 'remove'
-                      | 'firstOnly'
-                      | 'secondOnly'
-                      | 'both',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Keep comments from second file only
-              </span>
-            </label>
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="radio"
-                name="comments"
-                value="both"
-                checked={settings.comments === 'both'}
-                onChange={(e) =>
-                  setSettings({
-                    ...settings,
-                    comments: e.target.value as
-                      | 'remove'
-                      | 'firstOnly'
-                      | 'secondOnly'
-                      | 'both',
-                  })
-                }
-                className="cursor-pointer"
-              />
-              <span className="text-gray-700 dark:text-gray-300">
-                Keep comments from both files (remove duplicates)
-              </span>
-            </label>
+            <div className="space-y-2 ml-4">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="comments"
+                  value="remove"
+                  checked={settings.comments === 'remove'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      comments: e.target.value as
+                        | 'remove'
+                        | 'firstOnly'
+                        | 'secondOnly'
+                        | 'both',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Remove all comments
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="comments"
+                  value="firstOnly"
+                  checked={settings.comments === 'firstOnly'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      comments: e.target.value as
+                        | 'remove'
+                        | 'firstOnly'
+                        | 'secondOnly'
+                        | 'both',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Keep comments from the first file only
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="comments"
+                  value="secondOnly"
+                  checked={settings.comments === 'secondOnly'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      comments: e.target.value as
+                        | 'remove'
+                        | 'firstOnly'
+                        | 'secondOnly'
+                        | 'both',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Keep comments from second file only
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="comments"
+                  value="both"
+                  checked={settings.comments === 'both'}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      comments: e.target.value as
+                        | 'remove'
+                        | 'firstOnly'
+                        | 'secondOnly'
+                        | 'both',
+                    })
+                  }
+                  className="cursor-pointer"
+                />
+                <span className="text-gray-700 dark:text-gray-300">
+                  Keep comments from both files (remove duplicates)
+                </span>
+              </label>
+            </div>
           </div>
         </div>
 
         {/* Checkboxes */}
-        <div className="space-y-3 border-t pt-4 dark:border-gray-700">
-          <label className="flex items-center space-x-2 cursor-pointer">
+        <div className="space-y-3 border-t pt-4 dark:border-gray-700 grid sm:grid-cols-2 gap-4">
+          <label className="flex items-center space-x-2 cursor-pointer mb-0">
             <input
               type="checkbox"
               checked={settings.sortAlphabetically}
@@ -572,7 +574,7 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
               Sort variables alphabetically
             </span>
           </label>
-          <label className="flex items-center space-x-2 cursor-pointer">
+          <label className="flex items-center space-x-2 cursor-pointer mb-0">
             <input
               type="checkbox"
               checked={settings.removeEmpty}
@@ -591,23 +593,25 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
       {/* Merged Result Display */}
       {(firstValue || secondValue) && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-            Merged Result
-          </h3>
+          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+            <h3 className="text-xl font-semibold mb-0 text-gray-900 dark:text-gray-100">
+              Merged Result
+            </h3>
 
-          {/* Legend */}
-          <div className="flex flex-wrap gap-4 mb-4 text-sm">
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-blue-200 dark:bg-blue-900 border border-blue-400 dark:border-blue-700 rounded"></div>
-              <span className="text-gray-700 dark:text-gray-300">
-                From first file
-              </span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-4 h-4 bg-green-200 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded"></div>
-              <span className="text-gray-700 dark:text-gray-300">
-                From second file
-              </span>
+            {/* Legend */}
+            <div className="flex flex-wrap gap-4 text-sm sm:justify-end">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-blue-200 dark:bg-blue-900 border border-blue-400 dark:border-blue-700 rounded"></div>
+                <span className="text-gray-700 dark:text-gray-300">
+                  From first file
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-4 bg-green-200 dark:bg-green-900 border border-green-400 dark:border-green-700 rounded"></div>
+                <span className="text-gray-700 dark:text-gray-300">
+                  From second file
+                </span>
+              </div>
             </div>
           </div>
 
