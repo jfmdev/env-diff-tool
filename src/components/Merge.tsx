@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { parseEnvFile } from '../utils/envUtils';
 
-// TODO: Refactor code.
 // TODO: Improve UI.
 
 type MergeSettings = {
@@ -34,10 +33,11 @@ function mergeEnvFiles(
   const result: MergedLine[] = [];
   const processedKeys = new Set<string>();
 
-  // Process variables from first file
+  // Process variables from first file.
   for (const firstVar of firstVars) {
+    // When key is empty, it means it is a comment at the end of the file.
     if (!firstVar.key) {
-      // Handle trailing comments from first file
+      // Handle trailing comments from first file.
       if (settings.comments === 'firstOnly' || settings.comments === 'both') {
         firstVar.comments.forEach((comment) => {
           if (comment)
@@ -47,7 +47,7 @@ function mergeEnvFiles(
       continue;
     }
 
-    const secondVar = secondVars.find((v) => v.key === firstVar.key);
+    const secondVar = secondVars.find((item) => item.key === firstVar.key);
     processedKeys.add(firstVar.key);
 
     // Handle comments
@@ -130,7 +130,7 @@ function mergeEnvFiles(
       }
     }
 
-    // Skip if removeEmpty is enabled and value is empty
+    // Skip if 'removeEmpty' is enabled and value is empty.
     if (settings.removeEmpty && (!valueToUse || valueToUse.trim() === '')) {
       continue;
     }
@@ -142,7 +142,7 @@ function mergeEnvFiles(
     });
   }
 
-  // Process variables only in first file
+  // Process variables only present in the first file.
   if (
     settings.onlyInOne === 'includeAll' ||
     settings.onlyInOne === 'includeFirst'
@@ -162,7 +162,7 @@ function mergeEnvFiles(
         });
       }
 
-      // Skip if removeEmpty is enabled and value is empty
+      // Skip if 'removeEmpty' is enabled and value is empty.
       if (
         settings.removeEmpty &&
         (!firstVar.value || firstVar.value.trim() === '')
@@ -178,7 +178,7 @@ function mergeEnvFiles(
     }
   }
 
-  // Process variables only in second file
+  // Process variables only present in the second file.
   if (
     settings.onlyInOne === 'includeAll' ||
     settings.onlyInOne === 'includeSecond'
@@ -186,7 +186,7 @@ function mergeEnvFiles(
     for (const secondVar of secondVars) {
       if (!secondVar.key || processedKeys.has(secondVar.key)) continue;
 
-      // Handle comments for second-only variables
+      // Handle comments for second-only variables.
       if (settings.comments === 'secondOnly' || settings.comments === 'both') {
         secondVar.comments.forEach((comment) => {
           if (comment)
@@ -198,7 +198,7 @@ function mergeEnvFiles(
         });
       }
 
-      // Skip if removeEmpty is enabled and value is empty
+      // Skip if 'removeEmpty' is enabled and value is empty.
       if (
         settings.removeEmpty &&
         (!secondVar.value || secondVar.value.trim() === '')
@@ -214,7 +214,7 @@ function mergeEnvFiles(
     }
   }
 
-  // Sort if requested
+  // Sort if requested.
   if (settings.sortAlphabetically) {
     const comments: MergedLine[] = [];
     const variables: MergedLine[] = [];
@@ -227,9 +227,9 @@ function mergeEnvFiles(
       }
     });
 
-    variables.sort((a, b) => {
-      const keyA = a.content.split('=')[0];
-      const keyB = b.content.split('=')[0];
+    variables.sort((itemA, itemB) => {
+      const keyA = itemA.content.split('=')[0];
+      const keyB = itemB.content.split('=')[0];
       return keyA.localeCompare(keyB);
     });
 
