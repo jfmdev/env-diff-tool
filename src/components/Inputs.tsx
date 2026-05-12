@@ -35,9 +35,10 @@ export function Inputs({
 
     setIsLoadingSample(true);
     try {
+      const samplesBaseUrl = import.meta.env.BASE_URL;
       const [firstResponse, secondResponse] = await Promise.all([
-        fetch('/samples/first.env'),
-        fetch('/samples/second.env'),
+        fetch(`${samplesBaseUrl}samples/first.env`),
+        fetch(`${samplesBaseUrl}samples/second.env`),
       ]);
 
       if (!firstResponse.ok || !secondResponse.ok) {
