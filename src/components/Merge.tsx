@@ -603,7 +603,7 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
             {/* Legend */}
             <div className="flex flex-wrap gap-4 text-sm sm:justify-end">
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-blue-200 dark:bg-blue-900 border border-blue-400 dark:border-blue-700 rounded"></div>
+                <div className="w-4 h-4 bg-sky-200 dark:bg-sky-900 border border-sky-400 dark:border-sky-700 rounded"></div>
                 <span className="text-gray-700 dark:text-gray-300">
                   From first file
                 </span>
@@ -617,20 +617,30 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
             </div>
           </div>
 
-          <div className="font-mono bg-white dark:bg-black py-4 rounded border border-gray-300 dark:border-gray-700 overflow-x-auto">
+          <div className="font-mono bg-white dark:bg-black py-2 rounded border border-gray-300 dark:border-gray-700 overflow-x-auto">
             {mergedResult.length > 0 ? (
               mergedResult.map((line, index) => (
                 <div
                   key={index}
-                  className={`px-2 ${
+                  className={`${
                     line.source === 'first' && !line.isComment
-                      ? 'bg-blue-200 dark:bg-blue-900'
+                      ? 'bg-sky-100 dark:bg-sky-950'
                       : line.source === 'second' && !line.isComment
-                        ? 'bg-green-200 dark:bg-green-900'
+                        ? 'bg-green-100 dark:bg-green-950'
                         : ''
                   } ${line.isComment ? 'text-gray-600 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}
                 >
-                  {line.content || '\u00A0'}
+                  <span
+                    className={`px-2 ${
+                      line.source === 'first' && !line.isComment
+                        ? 'bg-sky-200 dark:bg-sky-900'
+                        : line.source === 'second' && !line.isComment
+                          ? 'bg-green-200 dark:bg-green-900'
+                          : ''
+                    }`}
+                  >
+                    {line.content || '\u00A0'}
+                  </span>
                 </div>
               ))
             ) : (
