@@ -254,7 +254,9 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl md:text-3xl drop-shadow-lg text-center">Merge</h2>
+      <h2 className="text-2xl md:text-3xl drop-shadow-lg text-center mb-4">
+        Merge
+      </h2>
 
       <form className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <div className="grid md:grid-cols-2 gap-4">
@@ -592,8 +594,8 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
 
       {/* Merged Result Display */}
       {(firstValue || secondValue) && (
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-          <div className="grid sm:grid-cols-2 gap-4 mb-4">
+        <div className="pb-4">
+          <div className="grid sm:grid-cols-2 gap-4 mb-2">
             <h3 className="text-xl font-semibold mb-0 text-gray-900 dark:text-gray-100">
               Merged Result
             </h3>
@@ -615,12 +617,12 @@ export function Merge({ firstValue, secondValue }: MergeProps) {
             </div>
           </div>
 
-          <div className="font-mono text-sm bg-gray-50 dark:bg-gray-900 p-4 rounded border border-gray-300 dark:border-gray-700 overflow-x-auto">
+          <div className="font-mono bg-white dark:bg-black py-4 rounded border border-gray-300 dark:border-gray-700 overflow-x-auto">
             {mergedResult.length > 0 ? (
               mergedResult.map((line, index) => (
                 <div
                   key={index}
-                  className={`${
+                  className={`px-2 ${
                     line.source === 'first' && !line.isComment
                       ? 'bg-blue-200 dark:bg-blue-900'
                       : line.source === 'second' && !line.isComment
